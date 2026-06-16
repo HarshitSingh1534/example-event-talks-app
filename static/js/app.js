@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorBanner = document.getElementById('error-banner');
     const errorMessage = document.getElementById('error-message');
     
+    // Theme and Actions Elements
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const themeToggleIcon = document.getElementById('theme-toggle-icon');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    
     // Selection Bar
     const selectionBar = document.getElementById('selection-bar');
     const selectionCount = document.getElementById('selection-count');
@@ -191,7 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="update-description">
                             ${update.html}
                         </div>
-                        <div class="update-actions">
+                        <div class="update-actions" style="gap: 0.5rem;">
+                            <button class="btn btn-card-tweet copy-note-btn" data-id="${update.id}" title="Copy update to clipboard">
+                                <i class="fa-regular fa-copy"></i> Copy
+                            </button>
                             <button class="btn btn-card-tweet single-tweet-btn" data-id="${update.id}">
                                 <i class="fa-brands fa-x-twitter"></i> Tweet
                             </button>
@@ -201,10 +209,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Card selection toggle on click (avoid trigger on links or buttons)
                 card.addEventListener('click', (e) => {
-                    if (e.target.tagName === 'A' || e.target.closest('a') || e.target.closest('.single-tweet-btn')) {
+                    if (e.target.tagName === 'A' || e.target.closest('a') || e.target.closest('.single-tweet-btn') || e.target.closest('.copy-note-btn')) {
                         return; // Let links and buttons act normally
                     }
                     toggleSelection(update.id);
+                });
+                
+                // Wire up card copy button
+                card.querySelector('.copy-note-btn').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    try {
+                        await navigator.clipboard.writeText(update.text);
+                        showToast('Update copied to clipboard!', 'success');
+                    } catch (err) {
+                        console.error('Failed to copy note:', err);
+                        showToast('Failed to copy update.', 'error');
+                    }
                 });
                 
                 // Wire up single card tweet button
@@ -497,6 +517,73 @@ document.addEventListener('DOMContentLoaded', () => {
         tweetModal.style.display = 'none';
         showToast('Redirected to Twitter / X!', 'success');
     });
+
+    // Theme Toggle Listener
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        
+        if (isLight) {
+            themeToggleIcon.classList.remove('fa-sun');
+            themeToggleIcon.classList.add('fa-moon');
+            showToast('Switched to Light Mode', 'info');
+        } else {
+            themeToggleIcon.classList.remove('fa-moon');
+            themeToggleIcon.classList.add('fa-sun');
+            showToast('Switched to Dark Mode', 'info');
+        }
+    });
+
+    // Export to CSV Listener
+    exportCsvBtn.addEventListener('click', () => {
+        const filtered = getFilteredData();
+        let totalUpdates = 0;
+        filtered.forEach(entry => totalUpdates += entry.updates.length);
+        
+        if (totalUpdates === 0) {
+            showToast('No updates to export.', 'error');
+            return;
+        }
+        
+        const csvRows = [["Date", "Type", "Description", "Link"]];
+        filtered.forEach(entry => {
+            entry.updates.forEach(up => {
+                const descEscaped = up.text.replace(/"/g, '""');
+                csvRows.push([
+                    `"${entry.date}"`,
+                    `"${up.type}"`,
+                    `"${descEscaped}"`,
+                    `"${entry.link}"`
+                ]);
+            });
+        });
+        
+        const csvString = csvRows.map(row => row.join(",")).join("\n");
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bigquery_release_notes_${new Date().toISOString().slice(0, 10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast(`Exported ${totalUpdates} updates to CSV!`, 'success');
+    });
+
+    // Theme Initialization
+    const initialTheme = localStorage.getItem('theme') || 'dark';
+    if (initialTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeToggleIcon.classList.remove('fa-sun');
+        themeToggleIcon.classList.add('fa-moon');
+    } else {
+        document.body.classList.remove('light-theme');
+        themeToggleIcon.classList.remove('fa-moon');
+        themeToggleIcon.classList.add('fa-sun');
+    }
 
     // Load initial releases
     loadReleases();

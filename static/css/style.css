@@ -15,6 +15,8 @@
     --text-primary: #f3f4f6;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
+    --text-card: #d1d5db;
+    --code-color: #e5e7eb;
     
     --accent-blue: #3b82f6;
     --accent-blue-glow: rgba(59, 130, 246, 0.15);
@@ -39,6 +41,52 @@
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.25);
     --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Light Theme Variable Overrides */
+body.light-theme {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --bg-glass: rgba(248, 250, 252, 0.85);
+    
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(59, 130, 246, 0.5);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-card: #334155;
+    --code-color: #0f172a;
+    
+    --accent-blue-glow: rgba(59, 130, 246, 0.08);
+    --accent-indigo-glow: rgba(99, 102, 241, 0.08);
+    
+    --color-feature-glow: rgba(16, 185, 129, 0.08);
+    --color-issue-glow: rgba(239, 68, 68, 0.08);
+    --color-deprecation-glow: rgba(245, 158, 11, 0.08);
+    --color-update-glow: rgba(139, 92, 246, 0.08);
+    
+    --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 20px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+body.light-theme .header-titles h1 {
+    background: linear-gradient(135deg, #0f172a, #1d4ed8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .btn-card-tweet {
+    background-color: rgba(15, 23, 42, 0.05);
+    color: var(--text-secondary);
+}
+
+body.light-theme .btn-card-tweet:hover {
+    background-color: var(--text-primary);
+    color: var(--bg-secondary);
+    border-color: transparent;
 }
 
 * {
@@ -672,7 +720,7 @@ body {
 .update-description {
     font-size: 0.95rem;
     line-height: 1.6;
-    color: #d1d5db;
+    color: var(--text-card);
 }
 
 .update-description a {
@@ -688,7 +736,7 @@ body {
 
 .update-description code {
     background-color: var(--bg-tertiary);
-    color: #e5e7eb;
+    color: var(--code-color);
     padding: 0.15rem 0.35rem;
     border-radius: 4px;
     font-family: monospace;
